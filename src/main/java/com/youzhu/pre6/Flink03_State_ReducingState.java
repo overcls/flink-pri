@@ -16,6 +16,7 @@ public class Flink03_State_ReducingState {
 
     public static void main(String[] args) throws Exception {
 
+        //ReducingState 要求输入输出类型一致 Aggregating 不要求输入输出类型一致
 
         //获取执行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

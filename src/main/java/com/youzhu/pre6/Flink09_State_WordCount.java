@@ -18,7 +18,7 @@ public class Flink09_State_WordCount {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         
         //1.1设置状态后端
-        env.setStateBackend(new FsStateBackend("hadfs://pre1:8020/flink/ck"));
+        env.setStateBackend(new FsStateBackend("hdfs://pre1:8020/flink/ck"));
         //1.2开启ck
         env.enableCheckpointing(5000);
         env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);

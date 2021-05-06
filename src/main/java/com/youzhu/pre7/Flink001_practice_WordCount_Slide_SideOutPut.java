@@ -19,7 +19,7 @@ import java.time.Duration;
 public class Flink001_practice_WordCount_Slide_SideOutPut {
 
     /*
-    使用事件时间处理数据,编写代码从端口获取数据实现每隔5s计算最近30s的每个传感器发送水位线的次数,
+    使用事件时间处理数据,从端口获取数据实现每隔5s计算最近30s的每个传感器发送水位线的次数,
     Watermark设置延迟2s,再迟到的数据放至侧输出流,通过观察结果说明什么样的数据会进入侧输出流
      */
     public static void main(String[] args) throws Exception {

@@ -40,7 +40,7 @@ process 生命周期
                 return value;
             }
 
-            //处理第一个流
+            //处理第二个流
             @Override
             public Object map2(Integer value) throws Exception {
                 return value;

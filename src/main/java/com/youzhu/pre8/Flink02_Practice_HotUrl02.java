@@ -8,8 +8,8 @@ import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.common.state.ListState;
-import org.apache.flink.api.common.state.ListStateDescriptor;
+import org.apache.flink.api.common.state.MapState;
+import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
@@ -27,9 +27,11 @@ import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 
-public class Flink01_Practice_HotUrl {
+public class Flink02_Practice_HotUrl02 {
 
+    //flink处理流式数据终极方案 spark是不具备处理乱序数据的能力
     public static void main(String[] args) throws Exception {
 
         //获取执行环境
@@ -46,7 +48,7 @@ public class Flink01_Practice_HotUrl {
                 });
         //SingleOutputStreamOperator<ApacheLog> apacheLogDS = env.readTextFile("input/apache.log")
         //从端口获取数据
-        SingleOutputStreamOperator<ApacheLog> apacheLogDS = env.socketTextStream("pre1",9999)
+        SingleOutputStreamOperator<ApacheLog> apacheLogDS = env.socketTextStream("pre1",9999)      
                 .map(data -> {
             String[] split = data.split(" ");
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy:HH:mm:ss");
@@ -87,7 +89,7 @@ public class Flink01_Practice_HotUrl {
         apacheLogDS.print("apacheLogDS");
         urlCountByWindowDS.print("urlCountByWindowDS");
         result.print("Result");
-
+        
         //执行任务
         env.execute();
 
@@ -134,11 +136,11 @@ public class Flink01_Practice_HotUrl {
         }
 
         //声明状态
-        private ListState<UrlCount> listState;
+        private MapState<String,UrlCount> mapState;
 
         @Override
         public void open(Configuration parameters) throws Exception {
-            listState = getRuntimeContext().getListState(new ListStateDescriptor<UrlCount>("list-state",UrlCount.class));
+            mapState = getRuntimeContext().getMapState(new MapStateDescriptor<String, UrlCount>("map-state",String.class,UrlCount.class));
 
         }
 
@@ -146,11 +148,11 @@ public class Flink01_Practice_HotUrl {
         public void processElement(UrlCount value, Context ctx, Collector<String> out) throws Exception {
 
             //将当前数据放入状态
-            listState.add(value);
+            mapState.put(value.getUrl(),value);
 
             //注册定时器
             ctx.timerService().registerEventTimeTimer(value.getWindowEnd()+1L);
-
+            
             //注册定时器 ,在窗口真正关闭之后,专门用于清空状态
             ctx.timerService().registerEventTimeTimer(value.getWindowEnd()+61001L);
 
@@ -160,19 +162,20 @@ public class Flink01_Practice_HotUrl {
         public void onTimer(long timestamp, OnTimerContext ctx, Collector<String> out) throws Exception {
 
             //ctx.getCurrentKey()就是获取当前定时器 使用这个定时器是为了解决 迟到数据到来时 清空了状态 没有之前的状态 定时器这样做会解决无状态的问题
-            //出现的新问题 watermark更新时
+            //出现的新问题 watermark更新时 状态要进行去重所以改变为mapstate
             if (timestamp == ctx.getCurrentKey()+61001L){
-               listState.clear();
+               mapState.clear();
                return;
             }
-
+            
             //提取状态当中的数据
-            Iterator<UrlCount> urlCountIterator = listState.get().iterator();
+            Iterator<Map.Entry<String, UrlCount>> iterator = mapState.iterator();
+            //转换成集合
+            ArrayList<Map.Entry<String, UrlCount>> entries = Lists.newArrayList(iterator);
 
-            ArrayList<UrlCount> urlCounts = Lists.newArrayList(urlCountIterator);
 
             //排序
-            urlCounts.sort(((o1, o2) -> o2.getCount()-o1.getCount()));
+            entries.sort((o1, o2) -> o2.getValue().getCount()-o1.getValue().getCount());
 
             //取TopN
             StringBuilder sb = new StringBuilder();
@@ -180,8 +183,8 @@ public class Flink01_Practice_HotUrl {
                     .append(new TimeStamp(timestamp-1000L))
                     .append("==================")
                     .append("\n");
-            for (int i = 0; i < Math.min(topSize, urlCounts.size()); i++) {
-                UrlCount urlCount = urlCounts.get(i);
+            for (int i = 0; i < Math.min(topSize, entries.size()); i++) {
+                UrlCount urlCount = entries.get(i).getValue();
 
                 sb.append("Top").append(i+1);
                 sb.append("Url:").append(urlCount.getUrl());

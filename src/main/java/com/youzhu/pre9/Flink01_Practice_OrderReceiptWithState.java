@@ -185,6 +185,10 @@ public class Flink01_Practice_OrderReceiptWithState {
                         txEvent.getTxId() + "只有到账没有支付");
 
             }
+            //清空状态
+            payEventState.clear();
+            txEventState.clear();
+            timerState.clear();
 
         }
     }

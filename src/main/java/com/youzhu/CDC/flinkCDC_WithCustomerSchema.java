@@ -18,9 +18,7 @@ import java.util.Properties;
 
 public class flinkCDC_WithCustomerSchema {
 
-    /*
-    local模式是不支持 从checkpoint savepoint 恢复任务  必须在集群上提交
-     */
+
     public static void main(String[] args) throws Exception {
 
         //获取执行环境

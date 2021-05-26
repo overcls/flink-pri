@@ -1,4 +1,4 @@
-package com.youzhu.pre10_SQL;
+package com.youzhu.pre10;
 
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;

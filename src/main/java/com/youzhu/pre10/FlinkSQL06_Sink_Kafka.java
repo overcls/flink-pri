@@ -1,4 +1,4 @@
-package com.youzhu.pre10_SQL;
+package com.youzhu.pre10;
 
 import com.youzhu.bean.WaterSensor;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -7,12 +7,13 @@ import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.table.descriptors.Csv;
-import org.apache.flink.table.descriptors.FileSystem;
+import org.apache.flink.table.descriptors.Kafka;
 import org.apache.flink.table.descriptors.Schema;
+import org.apache.kafka.clients.producer.ProducerConfig;
 
 import static org.apache.flink.table.api.Expressions.$;
 
-public class FlinkSQL05_Sink_File {
+public class FlinkSQL06_Sink_Kafka {
 
     public static void main(String[] args) throws Exception {
 
@@ -41,15 +42,22 @@ public class FlinkSQL05_Sink_File {
                         $("ts"), $("vc"));
 
 
-        //将selectTable写入文件系统
-        tableEnv.connect(new FileSystem().path("out/result.txt")).withFormat(new Csv())
+        //将selectTable写入Kafka
+        tableEnv.connect(new Kafka()
+                .version("universal")
+                .topic("test")
+                .startFromEarliest()
+                .sinkPartitionerRoundRobin()  //轮询的方式往kafka写
+                .property(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "pre1:9092"))
                 .withSchema(new Schema()
                         .field("id", DataTypes.STRING())
                         .field("ts", DataTypes.BIGINT())
                         .field("vc", DataTypes.INT()))
-                .createTemporaryTable("sensorOutPut");
-        //tableEnv.from("sensorOutPut");   //Source
-        selectTable.executeInsert("sensorOutPut");  //sink
+                //支持csv 和json格式  使用json小bug  会产生空行
+                //.withFormat(new Json())
+                .withFormat(new Csv())
+                .createTemporaryTable("sensor");
+        selectTable.executeInsert("sensor");  //sink
 
         env.execute();
 

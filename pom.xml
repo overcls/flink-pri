@@ -7,7 +7,7 @@
     <groupId>org.example</groupId>
     <artifactId>flink-pri</artifactId>
     <version>1.0-SNAPSHOT</version>
-   <!--导入scala包的原因是因为  flink内部使用akka通信 -->
+    <!--导入scala包的原因是因为  flink内部使用akka通信 -->
     <properties>
         <flink.version>1.12.0</flink.version>
         <java.version>1.8</java.version>
@@ -148,11 +148,17 @@
             <artifactId>fastjson</artifactId>
             <version>1.2.75</version>
         </dependency>
-
+        <!-- 1.8版本添加blink到flink核心包 1.10版本阿里并不推荐使用blink 到1.12 才推荐使用-->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-planner-blink_2.12</artifactId>
             <version>1.12.0</version>
+        </dependency>
+        <!-- 解决connector sink es时错误-->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-table-planner_2.12</artifactId>
+            <version>${flink.version}</version>
         </dependency>
 
         <dependency>
@@ -181,7 +187,6 @@
             <artifactId>flink-json</artifactId>
             <version>${flink.version}</version>
         </dependency>
-
 
 
     </dependencies>

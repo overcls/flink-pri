@@ -1,4 +1,4 @@
-package com.youzhu.pre10_SQL;
+package com.youzhu.pre10;
 
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.DataTypes;

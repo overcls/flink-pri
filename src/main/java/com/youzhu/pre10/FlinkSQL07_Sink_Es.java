@@ -1,14 +1,18 @@
-package com.youzhu.pre10_SQL;
+package com.youzhu.pre10;
 
 import com.youzhu.bean.WaterSensor;
-import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-import org.apache.flink.types.Row;
+import org.apache.flink.table.descriptors.Elasticsearch;
+import org.apache.flink.table.descriptors.Json;
+import org.apache.flink.table.descriptors.Schema;
 
-public class FlinkSQL01_StreamToTable {
+import static org.apache.flink.table.api.Expressions.$;
+
+public class FlinkSQL07_Sink_Es {
 
     public static void main(String[] args) throws Exception {
 
@@ -32,18 +36,26 @@ public class FlinkSQL01_StreamToTable {
         Table sensorTable = tableEnv.fromDataStream(waterSensorDS);
 
         //使用tableAPI过滤出ws_001 的数据
-     //   Table selectTable = sensorTable.where($("id").isEqual("ws_001"))
-       //         .select($("id"), $("ts"), $("vc"));
-
-        //以过时写法
-        Table selectTable = sensorTable.where("id = 'ws_001' ")
-                .select("id,ts,vc");
+        Table selectTable = sensorTable.where($("id").isEqual("ws_001"))
+                .select($("id"),
+                        $("ts"), $("vc"));
 
 
-        //将selectTable转换成流进行输出
-        DataStream<Row> rowDataStream = tableEnv.toAppendStream(selectTable, Row.class);
-
-        rowDataStream.print();
+        //将selectTable写入Kafka
+        tableEnv.connect(new Elasticsearch()
+                .index("sensor")
+                .documentType("_doc")
+                .version("6")
+                .host("pre1", 9200, "http")
+                .bulkFlushMaxActions(1)
+        ).withSchema(new Schema()
+                .field("id", DataTypes.STRING())
+                .field("ts", DataTypes.BIGINT())
+                .field("vc", DataTypes.INT()))
+                .withFormat(new Json())
+                .inAppendMode()
+                .createTemporaryTable("sensor");
+        selectTable.executeInsert("sensor");  //sink
 
         env.execute();
 

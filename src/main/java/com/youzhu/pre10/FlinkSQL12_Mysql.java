@@ -6,7 +6,10 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 public class FlinkSQL12_Mysql {
 
     public static void main(String[] args) throws Exception {
-
+        /*
+        flinksql一定是读取结构化数据
+        非结构化数据 流数据必须转换为动态表   才能实现flinksql实现需求
+         */
 
         //获取执行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -23,7 +26,7 @@ public class FlinkSQL12_Mysql {
                 + "'format' = 'csv'"
                 + ")");
 
-        //注册SinkTable:MySql  不会自动在Mysql创建表
+        //注册SinkTable:MySql  不会自动在Mysql创建表  需要手动在mysql中建表
         tableEnv.executeSql("create table sink_sensor (id string,ts bigint,vc int) with ("
                 + "'connector' = 'jdbc',"
                 + "'url' = 'jdbc:mysql://pre1:3306/test',"

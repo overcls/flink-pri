@@ -53,7 +53,7 @@ public class FlinkSQL06_Sink_Kafka {
                         .field("id", DataTypes.STRING())
                         .field("ts", DataTypes.BIGINT())
                         .field("vc", DataTypes.INT()))
-                //支持csv 和json格式  使用json小bug  会产生空行
+                //支持csv 和json格式  使用csv小bug  会产生空行
                 //.withFormat(new Json())
                 .withFormat(new Csv())
                 .createTemporaryTable("sensor");

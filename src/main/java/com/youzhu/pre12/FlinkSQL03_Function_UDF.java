@@ -54,7 +54,7 @@ public class FlinkSQL03_Function_UDF {
 
     public static class MyLength extends ScalarFunction{
 
-        //一下方法并非实现 而是需要自己去写
+        //以下方法并非实现 而是需要自己去写
         public int eval(String value){
             return value.length();
         }

@@ -27,7 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.Random;
 
-public class Flink003_practice_PageView_Window2 {
+public class Flink03_practice_PageView_Window2 {
     /*
     pageview开窗 处理数据倾斜   二次聚合
      */

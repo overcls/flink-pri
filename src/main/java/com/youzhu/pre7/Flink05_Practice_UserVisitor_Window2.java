@@ -21,7 +21,7 @@ import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 import redis.clients.jedis.Jedis;
 
-public class Flink005_Practice_UserVisitor_Window2 {
+public class Flink05_Practice_UserVisitor_Window2 {
 
     public static void main(String[] args) throws Exception {
 

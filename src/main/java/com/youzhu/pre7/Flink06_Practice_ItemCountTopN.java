@@ -27,7 +27,7 @@ import org.apache.flink.util.Collector;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
-public class Flink006_Practice_ItemCountTopN {
+public class Flink06_Practice_ItemCountTopN {
 
     public static void main(String[] args) throws Exception {
 

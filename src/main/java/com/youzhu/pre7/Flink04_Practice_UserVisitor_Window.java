@@ -20,7 +20,7 @@ import org.apache.flink.util.Collector;
 import java.util.HashSet;
 import java.util.Iterator;
 
-public class Flink004_Practice_UserVisitor_Window {
+public class Flink04_Practice_UserVisitor_Window {
 
     public static void main(String[] args) throws Exception {
 

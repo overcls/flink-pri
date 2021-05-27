@@ -11,7 +11,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 
-public class Flink002_practice_PageView_Window {
+public class Flink02_practice_PageView_Window {
     /*
     1h窗口实现聚合操作
      */

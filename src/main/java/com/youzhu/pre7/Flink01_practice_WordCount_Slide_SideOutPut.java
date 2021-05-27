@@ -16,7 +16,7 @@ import org.apache.flink.util.OutputTag;
 
 import java.time.Duration;
 
-public class Flink001_practice_WordCount_Slide_SideOutPut {
+public class Flink01_practice_WordCount_Slide_SideOutPut {
 
     /*
     使用事件时间处理数据,从端口获取数据实现每隔5s计算最近30s的每个传感器发送水位线的次数,
